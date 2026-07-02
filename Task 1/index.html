@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura — Intelligent Rule-Based Chatbot</title>
+  <meta name="description"
+    content="Aura is a beautiful, highly responsive, rule-based chatbot designed with advanced pattern matching and modern glassmorphic aesthetics.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+              fill="currentColor" />
+          </svg>
+        </div>
+        <h1>Aura<span>.bot</span></h1>
+      </div>
+
+      <div class="header-actions">
+        <!-- Status Indicator -->
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">Online</span>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="icon-btn" aria-label="Toggle light and dark theme">
+          <!-- Dark icon -->
+          <svg class="dark-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Light icon -->
+          <svg class="light-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <!-- Main Workspace Layout -->
+    <main class="main-layout">
+
+      <!-- Left Sidebar: Bot Info & Stats -->
+      <aside class="sidebar">
+        <!-- Assistant Profile Card -->
+        <div class="sidebar-card profile-card">
+          <div class="avatar-container">
+            <div class="avatar-ring"></div>
+            <div class="bot-avatar">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12C2 14.76 3.12 17.26 4.93 19.07L12 12L19.07 19.07C20.88 17.26 22 14.76 22 12C22 6.48 17.52 2 12 2Z"
+                  fill="var(--accent-primary)" />
+                <circle cx="9" cy="10" r="1.5" fill="white" />
+                <circle cx="15" cy="10" r="1.5" fill="white" />
+                <path d="M9 14.5C9.5 15.5 10.6 16 12 16C13.4 16 14.5 15.5 15 14.5" stroke="white" stroke-width="1.5"
+                  stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="status-pulse"></div>
+          </div>
+
+          <div class="profile-info">
+            <h2>Aura Engine v1.2</h2>
+            <p>Smart Rule-Based Virtual Assistant</p>
+          </div>
+        </div>
+        <!-- Bot Capability Highlights -->
+        <div class="sidebar-card capabilities-card">
+          <h3>Try Asking For:</h3>
+          <ul class="capability-list">
+            <li>
+              <span class="cap-icon">⚙️</span>
+              <div class="cap-details">
+                <strong>Help & Capabilities</strong>
+                <p>Type "help" or "what can you do?"</p>
+              </div>
+            </li>
+            <li>
+              <span class="cap-icon">⚡</span>
+              <div class="cap-details">
+                <strong>Math Calculator</strong>
+                <p>Type "calculate 23 * 5" or "100 / 4"</p>
+              </div>
+            </li>
+            <li>
+              <span class="cap-icon">🕒</span>
+              <div class="cap-details">
+                <strong>Real-Time Data</strong>
+                <p>Type "what is the date?" or "time"</p>
+              </div>
+            </li>
+            <li>
+              <span class="cap-icon">🎭</span>
+              <div class="cap-details">
+                <strong>Fun & Games</strong>
+                <p>Type "tell me a joke" or "riddle"</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- Chat Statistics Panel -->
+        <div class="sidebar-card stats-card">
+          <h3>Session Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value" id="stat-user-msg">0</span>
+              <span class="stat-label">User Sent</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="stat-bot-msg">1</span>
+              <span class="stat-label">Bot Sent</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="stat-match-rate">100%</span>
+              <span class="stat-label">Match Rate</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="stat-session-time">00:00</span>
+              <span class="stat-label">Session Duration</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sidebar Preferences -->
+        <div class="sidebar-card preferences-card">
+          <div class="preference-row">
+            <label for="sound-toggle">Sound Effects</label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="sound-toggle" checked>
+              <span class="switch-slider"></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <!-- Center Chat Area -->
+      <section class="chat-container">
+        <!-- Messages Window -->
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+          <!-- Initial bot welcome message -->
+          <div class="message bot-message transition-in">
+            <div class="message-avatar">
+              A
+            </div>
+            <div class="message-wrapper">
+              <div class="message-content">
+                <p>Greetings! I am <strong>Aura</strong>, a high-performance rule-based intelligence engine. 🚀</p>
+                <p>I can help with calculations, retrieve real-time dates/times, share jokes/riddles, or simply chat.
+                  How can I help you today?</p>
+              </div>
+              <span class="message-time">Just now</span>
+            </div>
+          </div>
+        </div>
+        <!-- Typing Indicator Container (Hidden by default) -->
+        <div class="typing-indicator-wrapper" id="typing-indicator" style="display: none;">
+          <div class="typing-indicator-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+          <span class="typing-text">Aura is formulating a response...</span>
+        </div>
+        <!-- Suggestion Quick Reply Chips -->
+        <div class="quick-suggestions-wrapper">
+          <div class="suggestions-title">Quick Tasks:</div>
+          <div class="suggestions-container" id="suggestion-chips">
+            <button class="suggestion-chip" data-query="Help me">❓ Show Help</button>
+            <button class="suggestion-chip" data-query="What is the current time?">🕒 Get Time</button>
+            <button class="suggestion-chip" data-query="Tell me a joke">😂 Tell a Joke</button>
+            <button class="suggestion-chip" data-query="Give me a riddle">🧩 Ask a Riddle</button>
+            <button class="suggestion-chip" data-query="Calculate 125 * 8">⚡ Math Check</button>
+            <button class="suggestion-chip" data-query="How is the weather?">⛅ Weather</button>
+          </div>
+        </div>
+        <!-- Input Form Area -->
+        <footer class="chat-input-area">
+          <form id="chat-form" class="input-form">
+            <input type="text" id="chat-input"
+              placeholder="Message Aura... (e.g., 'What time is it?' or 'calculate 25 + 75')" autocomplete="off"
+              maxlength="200" required>
+            <button type="submit" id="send-btn" class="send-btn" aria-label="Send message">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+        </footer>
+      </section>
+    </main>
+  </div>
+  <!-- Sound assets (Web Audio API synthetically generated, so no external assets needed!) -->
+  <!-- App Script Logic -->
+  <script src="app.js"></script>
+</body>
+
+</html>
