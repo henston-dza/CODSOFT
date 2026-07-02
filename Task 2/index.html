@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Play Tic-Tac-Toe against an unbeatable AI powered by the Minimax algorithm with Alpha-Beta Pruning. Can you beat it?" />
+  <title>Tic-Tac-Toe AI | Unbeatable Challenge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background particles -->
+  <div class="bg-particles" aria-hidden="true">
+    <div class="particle" style="--x:10%;--y:15%;--s:0.4;--d:6s"></div>
+    <div class="particle" style="--x:80%;--y:20%;--s:0.6;--d:8s"></div>
+    <div class="particle" style="--x:60%;--y:70%;--s:0.3;--d:5s"></div>
+    <div class="particle" style="--x:30%;--y:80%;--s:0.5;--d:7s"></div>
+    <div class="particle" style="--x:90%;--y:50%;--s:0.4;--d:9s"></div>
+    <div class="particle" style="--x:20%;--y:40%;--s:0.7;--d:6.5s"></div>
+    <div class="particle" style="--x:70%;--y:10%;--s:0.35;--d:7.5s"></div>
+    <div class="particle" style="--x:45%;--y:55%;--s:0.5;--d:5.5s"></div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-area">
+        <div class="logo-icon" aria-hidden="true">
+          <span class="x-mark">✕</span>
+          <span class="divider">|</span>
+          <span class="o-mark">○</span>
+        </div>
+        <h1 class="title">Tic<span class="accent">·</span>Tac<span class="accent">·</span>Toe <span class="ai-badge">AI</span></h1>
+      </div>
+      <p class="subtitle">Challenge the unbeatable Minimax intelligence</p>
+    </header>
+
+    <!-- Mode Selection Screen -->
+    <div class="screen" id="screen-mode">
+      <div class="mode-card glass">
+        <h2 class="mode-title">Choose Your Mode</h2>
+        <p class="mode-desc">Pick your side and face the AI — or battle a friend!</p>
+        <div class="mode-options">
+          <button class="mode-btn active" id="btn-vs-ai" aria-pressed="true">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-label">vs AI</span>
+            <span class="mode-hint">Unbeatable</span>
+          </button>
+          <button class="mode-btn" id="btn-vs-human" aria-pressed="false">
+            <span class="mode-icon">👥</span>
+            <span class="mode-label">2 Players</span>
+            <span class="mode-hint">Local co-op</span>
+          </button>
+        </div>
+
+        <!-- Side selection (only for vs AI) -->
+        <div class="side-select" id="side-select">
+          <p class="side-label">Play as:</p>
+          <div class="side-btns">
+            <button class="side-btn active" id="btn-play-x" aria-pressed="true">
+              <span class="x-symbol">✕</span> X (First)
+            </button>
+            <button class="side-btn" id="btn-play-o" aria-pressed="false">
+              <span class="o-symbol">○</span> O (Second)
+            </button>
+          </div>
+        </div>
+
+        <!-- Difficulty (only for vs AI) -->
+        <div class="difficulty-select" id="difficulty-select">
+          <p class="side-label">Difficulty:</p>
+          <div class="diff-btns">
+            <button class="diff-btn" id="btn-easy" data-level="easy">😴 Easy</button>
+            <button class="diff-btn" id="btn-medium" data-level="medium">🎯 Medium</button>
+            <button class="diff-btn active" id="btn-hard" data-level="hard">🔥 Hard (Unbeatable)</button>
+          </div>
+        </div>
+
+        <button class="start-btn" id="btn-start">
+          <span>Start Game</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen hidden" id="screen-game">
+      <!-- Score Board -->
+      <div class="scoreboard glass">
+        <div class="score-item" id="score-x-area">
+          <span class="score-player-label x-color">✕ <span id="score-x-name">Player X</span></span>
+          <span class="score-value" id="score-x">0</span>
+        </div>
+        <div class="score-divider">
+          <span class="score-ties-label">TIES</span>
+          <span class="score-value" id="score-ties">0</span>
+        </div>
+        <div class="score-item" id="score-o-area">
+          <span class="score-player-label o-color">○ <span id="score-o-name">Player O</span></span>
+          <span class="score-value" id="score-o">0</span>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar glass" id="status-bar" aria-live="polite" aria-atomic="true">
+        <span class="turn-indicator" id="turn-indicator"></span>
+        <span class="status-msg" id="status-msg">Your turn</span>
+      </div>
+
+      <!-- Game Board -->
+      <div class="board-wrapper">
+        <div class="board" id="board" role="grid" aria-label="Tic-Tac-Toe game board">
+          <button class="cell" id="cell-0" data-index="0" role="gridcell" aria-label="Cell 1, empty"></button>
+          <button class="cell" id="cell-1" data-index="1" role="gridcell" aria-label="Cell 2, empty"></button>
+          <button class="cell" id="cell-2" data-index="2" role="gridcell" aria-label="Cell 3, empty"></button>
+          <button class="cell" id="cell-3" data-index="3" role="gridcell" aria-label="Cell 4, empty"></button>
+          <button class="cell" id="cell-4" data-index="4" role="gridcell" aria-label="Cell 5, empty"></button>
+          <button class="cell" id="cell-5" data-index="5" role="gridcell" aria-label="Cell 6, empty"></button>
+          <button class="cell" id="cell-6" data-index="6" role="gridcell" aria-label="Cell 7, empty"></button>
+          <button class="cell" id="cell-7" data-index="7" role="gridcell" aria-label="Cell 8, empty"></button>
+          <button class="cell" id="cell-8" data-index="8" role="gridcell" aria-label="Cell 9, empty"></button>
+        </div>
+        <!-- Win line overlay -->
+        <svg class="win-line-svg" id="win-line-svg" viewBox="0 0 300 300" aria-hidden="true">
+          <line id="win-line" x1="0" y1="0" x2="0" y2="0" stroke="url(#winGrad)" stroke-width="6" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="winGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-btns">
+        <button class="action-btn secondary" id="btn-back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Menu
+        </button>
+        <button class="action-btn primary" id="btn-restart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          New Round
+        </button>
+      </div>
+
+      <!-- AI Thinking Indicator -->
+      <div class="ai-thinking" id="ai-thinking" aria-live="polite" aria-hidden="true">
+        <div class="thinking-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span>AI is thinking…</span>
+      </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal glass">
+        <div class="modal-icon" id="modal-icon" aria-hidden="true"></div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-sub" id="modal-sub"></p>
+        <div class="modal-actions">
+          <button class="action-btn primary" id="btn-modal-play-again">Play Again</button>
+          <button class="action-btn secondary" id="btn-modal-menu">Main Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
