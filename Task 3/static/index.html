@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisualCaption AI - Image Captioning Studio</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Chart.js for Training Loss visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <span class="logo-text">VisualCaption <span class="logo-tag">AI</span></span>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-target="caption-tab">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Caption Studio</span>
+                </button>
+                <button class="nav-btn" data-target="train-tab">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    <span>Training Room</span>
+                </button>
+                <button class="nav-btn" data-target="dataset-tab">
+                    <i class="fa-solid fa-database"></i>
+                    <span>Dataset Manager</span>
+                </button>
+                <button class="nav-btn" data-target="models-tab">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>Architecture Info</span>
+                </button>
+            </nav>
+            
+            <div class="active-config-card">
+                <h4>Active Configuration</h4>
+                <div class="config-stat">
+                    <span class="label">Encoder:</span>
+                    <span class="value" id="current-encoder-badge">ResNet50</span>
+                </div>
+                <div class="config-stat">
+                    <span class="label">Decoder:</span>
+                    <span class="value" id="current-decoder-badge">LSTM</span>
+                </div>
+                <button class="config-btn" onclick="openConfigModal()">
+                    <i class="fa-solid fa-sliders"></i> Change Architecture
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 id="tab-title">Caption Studio</h1>
+                <div class="header-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Backend Connected</span>
+                </div>
+            </header>
+            
+            <!-- Tab 1: Caption Studio -->
+            <section id="caption-tab" class="tab-content active">
+                <div class="grid-layout">
+                    <div class="card upload-card">
+                        <h2>Upload Query Image</h2>
+                        <p class="card-subtitle">Upload any shape image or custom image to generate its caption.</p>
+                        
+                        <div class="drop-zone" id="drop-zone">
+                            <input type="file" id="image-input" accept="image/*" style="display: none;">
+                            <div class="drop-zone-content">
+                                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                                <h3>Drag & Drop Image</h3>
+                                <p>or click to browse from files</p>
+                                <span class="file-limits">Supports JPG, PNG, WEBP</span>
+                            </div>
+                            <div class="preview-container" style="display: none;">
+                                <img id="image-preview" src="" alt="Query Preview">
+                                <button class="remove-btn" id="remove-img-btn"><i class="fa-solid fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                        
+                        <button class="action-btn" id="generate-caption-btn" disabled>
+                            <i class="fa-solid fa-compass-drafting"></i> Generate Caption
+                        </button>
+                    </div>
+                    
+                    <div class="card result-card">
+                        <h2>Model Output</h2>
+                        <p class="card-subtitle">AI-generated caption and performance details.</p>
+                        
+                        <div class="output-container empty" id="output-container">
+                            <div class="placeholder-visual">
+                                <i class="fa-regular fa-lightbulb"></i>
+                                <p>Select and process an image to generate a description.</p>
+                            </div>
+                            
+                            <div class="loader-visual" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Running vision encoder & word-by-word sequence decoder...</p>
+                            </div>
+                            
+                            <div class="caption-result-box" style="display: none;">
+                                <div class="caption-label">Generated Caption:</div>
+                                <div class="caption-text" id="result-caption-text">"a red circle on a black background"</div>
+                                <div class="caption-meta">
+                                    <div class="meta-item">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span id="inference-time">0.12s</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fa-solid fa-microchip"></i>
+                                        <span id="inference-device">CPU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Tab 2: Training Center -->
+            <section id="train-tab" class="tab-content">
+                <div class="grid-layout cols-3">
+                    <!-- Training Config -->
+                    <div class="card span-1">
+                        <h2>Hyperparameters</h2>
+                        <p class="card-subtitle">Tune settings before starting training.</p>
+                        
+                        <form id="train-form" class="config-form">
+                            <div class="form-group">
+                                <label for="train-epochs">Epochs</label>
+                                <input type="number" id="train-epochs" min="1" max="100" value="15">
+                                <small>Fewer epochs run faster; more epochs improve accuracy.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="train-lr">Learning Rate</label>
+                                <select id="train-lr">
+                                    <option value="0.01">0.01 (Fast)</option>
+                                    <option value="0.003" selected>0.003 (Recommended)</option>
+                                    <option value="0.001">0.001 (Slow / Stable)</option>
+                                    <option value="0.0003">0.0003 (Fine-tuning)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="train-batch">Batch Size</label>
+                                <input type="number" id="train-batch" min="2" max="64" value="8">
+                            </div>
+                            
+                            <button type="submit" class="action-btn success-btn" id="start-train-btn">
+                                <i class="fa-solid fa-play"></i> Start Model Training
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Real-time Plot -->
+                    <div class="card span-2">
+                        <h2>Training Progress & Loss Chart</h2>
+                        <p class="card-subtitle">Real-time loss tracking across training epochs.</p>
+                        
+                        <div class="chart-container">
+                            <canvas id="lossChart"></canvas>
+                        </div>
+                        
+                        <div class="progress-section" style="display: none;" id="progress-bar-container">
+                            <div class="progress-header">
+                                <span class="progress-status" id="progress-status-text">Training Model...</span>
+                                <span class="progress-pct" id="progress-pct-text">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="console-output" id="console-logs">
+                                <div class="log-line system">Console initialized. Ready to train...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Tab 3: Dataset Manager -->
+            <section id="dataset-tab" class="tab-content">
+                <div class="dataset-layout">
+                    <!-- Upload custom pair -->
+                    <div class="card dataset-upload-card">
+                        <h2>Add Custom Sample to Dataset</h2>
+                        <p class="card-subtitle">Expand the AI's vocabulary by adding custom images and descriptions.</p>
+                        
+                        <form id="add-dataset-form" class="dataset-form">
+                            <div class="file-upload-small" id="dataset-drop-zone">
+                                <input type="file" id="dataset-img-input" accept="image/*" required style="display: none;">
+                                <div class="content" id="dataset-upload-prompt">
+                                    <i class="fa-regular fa-image"></i>
+                                    <span>Select Training Image</span>
+                                </div>
+                                <div class="preview" id="dataset-upload-preview" style="display: none;">
+                                    <img src="" id="dataset-preview-img" alt="Preview">
+                                    <span class="change-label">Change Image</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataset-caption">Image Description (Caption)</label>
+                                <input type="text" id="dataset-caption" placeholder="e.g. a blue square on a white background" required>
+                                <small>Describe the shape, color, and background accurately.</small>
+                            </div>
+                            <button type="submit" class="action-btn" id="add-sample-btn">
+                                <i class="fa-solid fa-plus"></i> Add Sample to Dataset
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Dataset Grid -->
+                    <div class="card dataset-list-card">
+                        <h2>Current Dataset (<span id="dataset-count">0</span> samples)</h2>
+                        <p class="card-subtitle">These image-caption pairs are used to train the model.</p>
+                        
+                        <div class="dataset-grid" id="dataset-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Tab 4: Architecture Information -->
+            <section id="models-tab" class="tab-content">
+                <div class="architecture-layout">
+                    <div class="card">
+                        <h2>Encoder-Decoder Pipeline</h2>
+                        <p class="card-subtitle">Understanding how computer vision and NLP are fused together.</p>
+                        
+                        <div class="diagram-container">
+                            <svg viewBox="0 0 800 320" class="arch-diagram">
+                                <defs>
+                                    <linearGradient id="grad-vision" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#3b82f6" />
+                                        <stop offset="100%" stop-color="#1d4ed8" />
+                                    </linearGradient>
+                                    <linearGradient id="grad-bridge" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#8b5cf6" />
+                                        <stop offset="100%" stop-color="#6d28d9" />
+                                    </linearGradient>
+                                    <linearGradient id="grad-nlp" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ec4899" />
+                                        <stop offset="100%" stop-color="#be185d" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Input Image Box -->
+                                <rect x="30" y="80" width="120" height="120" rx="10" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                                <image href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='50' r='30' fill='%23ef4444'/></svg>" x="45" y="95" width="90" height="90"/>
+                                <text x="90" y="220" text-anchor="middle" fill="#94a3b8" font-size="12">Input Image (224x224)</text>
+
+                                <!-- Arrow 1 -->
+                                <path d="M 160 140 L 195 140" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrow)"/>
+                                
+                                <!-- Encoder Box -->
+                                <rect x="205" y="60" width="160" height="160" rx="12" fill="url(#grad-vision)"/>
+                                <text x="285" y="100" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="16">CNN Encoder</text>
+                                <text x="285" y="130" text-anchor="middle" fill="#bfdbfe" font-size="13">ResNet50 or VGG16</text>
+                                <text x="285" y="160" text-anchor="middle" fill="#93c5fd" font-size="11">Frozen Pre-trained Layers</text>
+                                <text x="285" y="190" text-anchor="middle" fill="#ffffff" font-size="12" font-family="monospace">Linear Projector</text>
+
+                                <!-- Arrow 2 -->
+                                <path d="M 375 140 L 410 140" fill="none" stroke="#6d28d9" stroke-width="3" />
+                                
+                                <!-- Bridge Representation -->
+                                <rect x="420" y="110" width="90" height="60" rx="8" fill="url(#grad-bridge)"/>
+                                <text x="465" y="135" text-anchor="middle" fill="#ffffff" font-weight="600" font-size="13">Feature Vector</text>
+                                <text x="465" y="155" text-anchor="middle" fill="#e9d5ff" font-family="monospace" font-size="11">1 x 256</text>
+
+                                <!-- Arrow 3 -->
+                                <path d="M 520 140 L 555 140" fill="none" stroke="#be185d" stroke-width="3" />
+
+                                <!-- Decoder Box -->
+                                <rect x="565" y="60" width="190" height="160" rx="12" fill="url(#grad-nlp)"/>
+                                <text x="660" y="100" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="16">Sequence Decoder</text>
+                                <text x="660" y="130" text-anchor="middle" fill="#fbcfe8" font-size="13">LSTM / Transformer</text>
+                                <text x="660" y="160" text-anchor="middle" fill="#f9a8d4" font-size="11">Auto-Regressive Generation</text>
+                                <text x="660" y="190" text-anchor="middle" fill="#ffffff" font-size="12" font-family="monospace">Output Vocab Logits</text>
+                                
+                                <!-- Markers -->
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+                                </marker>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-layout">
+                        <!-- Model 1 Card -->
+                        <div class="card">
+                            <h3><i class="fa-solid fa-camera"></i> Feature Extractors (Encoders)</h3>
+                            <div class="arch-comparison">
+                                <div class="arch-item">
+                                    <h4>ResNet50 (Residual Network)</h4>
+                                    <p>Uses deep residual skip-connections to allow gradients to flow directly through layers. We extract features from the pool5 layer (outputs a 2048-dim feature map), then run it through a trained Linear layer to map to 256 dimensions.</p>
+                                    <span class="badge vision-badge">Highly Recommended</span>
+                                </div>
+                                <hr class="divider">
+                                <div class="arch-item">
+                                    <h4>VGG16 (Visual Geometry Group)</h4>
+                                    <p>A classic deep CNN characterized by small 3x3 convolution filters stacked sequentially. We run the output of its conv5 block through a spatial adaptive average pooling layer to collapse 3D features to 512 dimensions, which are projected to 256 dimensions.</p>
+                                    <span class="badge basic-badge">Classic Alternative</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Model 2 Card -->
+                        <div class="card">
+                            <h3><i class="fa-solid fa-language"></i> Language Decoders</h3>
+                            <div class="arch-comparison">
+                                <div class="arch-item">
+                                    <h4>DecoderRNN (LSTM Model)</h4>
+                                    <p>Uses a Long Short-Term Memory cell. In this configuration, the image feature is prepended to the sequence of word tokens as Step 0. The hidden state propagates context sequentially word-by-word. Highly effective for simple grammatical captions.</p>
+                                    <span class="badge nlp-badge">Sequential Context</span>
+                                </div>
+                                <hr class="divider">
+                                <div class="arch-item">
+                                    <h4>DecoderTransformer</h4>
+                                    <p>A modern self-attention based model. The image feature and the caption tokens are processed as a single sequence. We use a causal look-ahead mask to ensure the model cannot peek at future words during training. Allows parallel self-attention computation.</p>
+                                    <span class="badge trans-badge">Self-Attention</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Config Selection Modal -->
+    <div class="modal-overlay" id="config-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Configure Architecture</h2>
+                <button class="close-modal-btn" onclick="closeConfigModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="config-form">
+                    <div class="modal-group">
+                        <label>Vision Encoder (Feature Extractor)</label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="encoder" value="resnet50" checked>
+                                <div class="radio-card">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    <span class="title">ResNet50</span>
+                                    <span class="desc">Deep Residual Network, higher accuracy, standard features</span>
+                                </div>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="encoder" value="vgg16">
+                                <div class="radio-card">
+                                    <i class="fa-solid fa-cube"></i>
+                                    <span class="title">VGG16</span>
+                                    <span class="desc">Classic stacked convolutions, reliable feature extraction</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-group">
+                        <label>Language Decoder</label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="decoder" value="lstm" checked>
+                                <div class="radio-card">
+                                    <i class="fa-solid fa-arrows-spin"></i>
+                                    <span class="title">LSTM (RNN)</span>
+                                    <span class="desc">Recurrent network, passes hidden state sequence</span>
+                                </div>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="decoder" value="transformer">
+                                <div class="radio-card">
+                                    <i class="fa-solid fa-microchip"></i>
+                                    <span class="title">Transformer</span>
+                                    <span class="desc">Self-attention decoder with causal look-ahead masking</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="action-btn secondary-btn" onclick="closeConfigModal()">Cancel</button>
+                        <button type="submit" class="action-btn primary-btn">Apply Configuration</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
